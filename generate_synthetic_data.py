@@ -137,43 +137,46 @@ def _base_landmarks_B() -> np.ndarray:
 def _base_landmarks_C() -> np.ndarray:
     """Letter C: Curved hand like holding a cup.
 
-    All fingers partially bent in a C-arc. Thumb opposing fingers, also curved.
-    Tips are between fully extended and fully curled.
+    Key distinguishing features vs A and B:
+    - Fingers are PARTIALLY curved (not straight like B, not fully closed like A)
+    - Thumb and index fingertip are CLOSE together, forming the C opening
+    - All fingers curve inward significantly (tips move toward thumb)
+    - The hand forms a visible arc/semicircle shape
     """
     lm = np.zeros((21, 3), dtype=np.float64)
 
     # Wrist
     lm[0] = [0.50, 0.80, 0.00]
 
-    # --- THUMB (curved, opposing fingers) ---
+    # --- THUMB (curved outward, opposing fingers to form C opening) ---
     lm[1] = [0.38, 0.70, -0.02]   # CMC
-    lm[2] = [0.33, 0.63, -0.03]   # MCP
-    lm[3] = [0.30, 0.56, -0.04]   # IP
-    lm[4] = [0.30, 0.50, -0.05]   # TIP  (curved inward toward fingers)
+    lm[2] = [0.32, 0.62, -0.03]   # MCP
+    lm[3] = [0.28, 0.54, -0.05]   # IP
+    lm[4] = [0.28, 0.47, -0.06]   # TIP  (pointing up-right, near index tip)
 
-    # --- INDEX FINGER (partially bent, C-curve) ---
+    # --- INDEX FINGER (strongly curved inward to form top of C) ---
     lm[5] = [0.43, 0.55, -0.01]   # MCP
-    lm[6] = [0.42, 0.46, -0.02]   # PIP
-    lm[7] = [0.43, 0.40, -0.04]   # DIP  (curving inward)
-    lm[8] = [0.45, 0.38, -0.05]   # TIP  (medium height)
+    lm[6] = [0.40, 0.45, -0.03]   # PIP  (curving left)
+    lm[7] = [0.36, 0.42, -0.06]   # DIP  (curving strongly inward)
+    lm[8] = [0.33, 0.44, -0.07]   # TIP  (curving down toward thumb)
 
-    # --- MIDDLE FINGER (partially bent, C-curve) ---
+    # --- MIDDLE FINGER (strongly curved) ---
     lm[9]  = [0.48, 0.53, -0.01]  # MCP
-    lm[10] = [0.48, 0.44, -0.02]  # PIP
-    lm[11] = [0.49, 0.38, -0.04]  # DIP
-    lm[12] = [0.51, 0.36, -0.05]  # TIP  (medium height)
+    lm[10] = [0.46, 0.43, -0.03]  # PIP
+    lm[11] = [0.42, 0.39, -0.06]  # DIP
+    lm[12] = [0.39, 0.41, -0.07]  # TIP  (curving inward)
 
-    # --- RING FINGER (partially bent, C-curve) ---
+    # --- RING FINGER (strongly curved) ---
     lm[13] = [0.54, 0.54, -0.01]  # MCP
-    lm[14] = [0.54, 0.46, -0.02]  # PIP
-    lm[15] = [0.55, 0.40, -0.04]  # DIP
-    lm[16] = [0.57, 0.38, -0.05]  # TIP  (medium height)
+    lm[14] = [0.52, 0.45, -0.03]  # PIP
+    lm[15] = [0.48, 0.41, -0.06]  # DIP
+    lm[16] = [0.45, 0.43, -0.07]  # TIP  (curving inward)
 
-    # --- PINKY (partially bent, C-curve) ---
+    # --- PINKY (strongly curved) ---
     lm[17] = [0.59, 0.56, -0.01]  # MCP
-    lm[18] = [0.59, 0.49, -0.02]  # PIP
-    lm[19] = [0.60, 0.44, -0.04]  # DIP
-    lm[20] = [0.62, 0.42, -0.05]  # TIP  (medium height)
+    lm[18] = [0.57, 0.48, -0.03]  # PIP
+    lm[19] = [0.54, 0.45, -0.06]  # DIP
+    lm[20] = [0.51, 0.47, -0.07]  # TIP  (curving inward)
 
     return lm
 
