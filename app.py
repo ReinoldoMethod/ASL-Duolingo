@@ -11,6 +11,7 @@ import time
 import cv2
 import gradio as gr
 import numpy as np
+from PIL import Image
 
 from src.detector import HandDetector
 from src.preprocessing import normalize_landmarks
@@ -65,6 +66,18 @@ LETTER_DESCRIPTIONS = {
 }
 
 LEARN_LETTERS = list("ABCDEFGHIKLMNOPQRSTUVWXY")
+
+# ---------------------------------------------------------------------------
+# Sign reference images for the Learn tab
+# ---------------------------------------------------------------------------
+
+ASSETS_DIR = os.path.join(os.path.dirname(__file__), "assets", "signs")
+
+
+def _get_sign_image_path(letter: str) -> str | None:
+    """Return the path to the sign image for a letter, or None."""
+    path = os.path.join(ASSETS_DIR, f"{letter}.png")
+    return path if os.path.exists(path) else None
 
 # ---------------------------------------------------------------------------
 # Shared helpers
@@ -147,13 +160,8 @@ def process_learn(frame: np.ndarray, current_index: int,
                   correct_time: float) -> tuple:
     """Stream callback for the Learn tab.
 
-    State variables:
-        current_index: index into LEARN_LETTERS (0-based)
-        correct_time:  timestamp when the correct sign was first detected
-                       (0.0 means not yet detected)
-
     Returns (annotated_frame, current_index, correct_time,
-             status_html, progress_text).
+             status_html, progress_text, sign_image_path).
     """
     total = len(LEARN_LETTERS)
     current_index = int(current_index)
@@ -163,23 +171,25 @@ def process_learn(frame: np.ndarray, current_index: int,
         status = ("<span style='color:green; font-size:1.4em; font-weight:bold;'>"
                   "Congratulations! You learned the ASL alphabet!</span>")
         progress = f"Letter {total}/{total}"
+        sign_img = _get_sign_image_path(LEARN_LETTERS[-1])
         if frame is not None:
             annotated, _, _ = _process_frame(frame)
             if annotated is not None:
                 _draw_text(annotated, "Complete!", (20, 50),
                            font_scale=1.5, color=(0, 255, 0), thickness=3,
                            bg_color=(0, 0, 0))
-                return annotated, current_index, correct_time, status, progress
-        return frame, current_index, correct_time, status, progress
+                return annotated, current_index, correct_time, status, progress, sign_img
+        return frame, current_index, correct_time, status, progress, sign_img
 
     target = LEARN_LETTERS[current_index]
     desc = LETTER_DESCRIPTIONS[target]
     progress = f"Letter {current_index + 1}/{total}"
+    sign_img = _get_sign_image_path(target)
 
     if frame is None:
         status = (f"<b>Sign the letter: <span style='font-size:1.6em;'>"
                   f"{target}</span></b><br>{desc}")
-        return frame, current_index, correct_time, status, progress
+        return frame, current_index, correct_time, status, progress, sign_img
 
     annotated, letter, confidence = _process_frame(frame)
     if annotated is None:
@@ -187,7 +197,7 @@ def process_learn(frame: np.ndarray, current_index: int,
 
     if classifier is None:
         status = "<span style='color:red;'>Model not loaded — run train_model.py</span>"
-        return annotated, current_index, correct_time, status, progress
+        return annotated, current_index, correct_time, status, progress, sign_img
 
     now = time.time()
 
@@ -215,6 +225,7 @@ def process_learn(frame: np.ndarray, current_index: int,
                 status = (f"<b>Sign the letter: <span style='font-size:1.6em;'>"
                           f"{next_target}</span></b><br>{next_desc}")
                 progress = f"Letter {current_index + 1}/{total}"
+                sign_img = _get_sign_image_path(next_target)
         else:
             status = ("<span style='color:green; font-size:1.3em; "
                       "font-weight:bold;'>Correct!</span>")
@@ -234,7 +245,7 @@ def process_learn(frame: np.ndarray, current_index: int,
                    (20, 50), font_scale=0.9, color=(0, 200, 255),
                    thickness=2, bg_color=(0, 0, 0))
 
-    return annotated, current_index, correct_time, status, progress
+    return annotated, current_index, correct_time, status, progress, sign_img
 
 
 def reset_learn():
@@ -243,7 +254,8 @@ def reset_learn():
     desc = LETTER_DESCRIPTIONS[target]
     status = (f"<b>Sign the letter: <span style='font-size:1.6em;'>"
               f"{target}</span></b><br>{desc}")
-    return 0, 0.0, status, f"Letter 1/{len(LEARN_LETTERS)}"
+    sign_img = _get_sign_image_path(target)
+    return 0, 0.0, status, f"Letter 1/{len(LEARN_LETTERS)}", sign_img
 
 
 # ===================================================================
@@ -372,6 +384,12 @@ with gr.Blocks(title="ASL Alphabet Teacher") as demo:
                 learn_webcam = gr.Image(sources=["webcam"], streaming=True,
                                         type="numpy", label="Webcam")
             with gr.Column(scale=1):
+                learn_sign_image = gr.Image(
+                    value=_get_sign_image_path("A"),
+                    label="Reference Sign",
+                    interactive=False,
+                    height=200,
+                )
                 learn_status = gr.HTML(
                     value=(f"<b>Sign the letter: <span style='font-size:1.6em;'>"
                            f"A</span></b><br>{LETTER_DESCRIPTIONS['A']}")
@@ -384,14 +402,14 @@ with gr.Blocks(title="ASL Alphabet Teacher") as demo:
             fn=process_learn,
             inputs=[learn_webcam, learn_index, learn_correct_time],
             outputs=[learn_webcam, learn_index, learn_correct_time,
-                     learn_status, learn_progress],
+                     learn_status, learn_progress, learn_sign_image],
         )
 
         learn_reset_btn.click(
             fn=reset_learn,
             inputs=[],
             outputs=[learn_index, learn_correct_time,
-                     learn_status, learn_progress],
+                     learn_status, learn_progress, learn_sign_image],
         )
 
     # ---------------------------------------------------------------
