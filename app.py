@@ -41,9 +41,30 @@ LETTER_DESCRIPTIONS = {
     "A": "Make a fist with thumb resting on the side",
     "B": "Hold hand flat, fingers together pointing up, thumb tucked across palm",
     "C": "Curve hand into a C shape, like holding a cup",
+    "D": "Touch middle, ring, and pinky fingers to thumb; index finger points up",
+    "E": "Curl all fingers down, thumb tucked in front",
+    "F": "Touch index finger to thumb in a circle; other three fingers extend up",
+    "G": "Point index finger sideways, thumb parallel below it",
+    "H": "Point index and middle fingers sideways together",
+    "I": "Make a fist, extend only the pinky finger up",
+    "K": "Index finger up, middle finger angled forward, thumb between them",
+    "L": "Extend thumb and index finger to form an L shape",
+    "M": "Tuck thumb under three fingers (index, middle, ring over thumb)",
+    "N": "Tuck thumb under two fingers (index and middle over thumb)",
+    "O": "All fingers curve to touch thumb tip, forming an O shape",
+    "P": "Like K but pointing downward",
+    "Q": "Like G but pointing downward",
+    "R": "Cross index and middle fingers, other fingers closed",
+    "S": "Make a fist with thumb across the front of the fingers",
+    "T": "Tuck thumb between index and middle fingers",
+    "U": "Extend index and middle fingers together pointing up",
+    "V": "Extend index and middle fingers apart in a V shape",
+    "W": "Extend index, middle, and ring fingers apart",
+    "X": "Hook index finger (like a hook), other fingers closed",
+    "Y": "Extend thumb and pinky, close other fingers (hang loose)",
 }
 
-LEARN_LETTERS = ["A", "B", "C"]
+LEARN_LETTERS = list("ABCDEFGHIKLMNOPQRSTUVWXY")
 
 # ---------------------------------------------------------------------------
 # Shared helpers
@@ -140,7 +161,7 @@ def process_learn(frame: np.ndarray, current_index: int,
     # Already completed all letters
     if current_index >= total:
         status = ("<span style='color:green; font-size:1.4em; font-weight:bold;'>"
-                  "Congratulations! You learned A, B, C!</span>")
+                  "Congratulations! You learned the ASL alphabet!</span>")
         progress = f"Letter {total}/{total}"
         if frame is not None:
             annotated, _, _ = _process_frame(frame)
@@ -186,7 +207,7 @@ def process_learn(frame: np.ndarray, current_index: int,
             if current_index >= total:
                 status = ("<span style='color:green; font-size:1.4em; "
                           "font-weight:bold;'>"
-                          "Congratulations! You learned A, B, C!</span>")
+                          "Congratulations! You learned the ASL alphabet!</span>")
                 progress = f"Letter {total}/{total}"
             else:
                 next_target = LEARN_LETTERS[current_index]
@@ -318,7 +339,7 @@ def reset_practice():
 with gr.Blocks(title="ASL Alphabet Teacher") as demo:
     gr.Markdown(
         "# ASL Alphabet Teacher\n"
-        "Learn and practice American Sign Language letters (A, B, C) "
+        "Learn and practice the ASL alphabet (24 letters, excluding J and Z which require motion) "
         "using your webcam and real-time hand detection."
     )
 
@@ -340,7 +361,7 @@ with gr.Blocks(title="ASL Alphabet Teacher") as demo:
     # Tab 2 — Learn
     # ---------------------------------------------------------------
     with gr.Tab("Learn"):
-        gr.Markdown("Follow along to learn the ASL signs for A, B, and C.")
+        gr.Markdown("Follow along to learn the ASL alphabet. J and Z are excluded (they require motion).")
 
         # State variables
         learn_index = gr.State(value=0)

@@ -25,8 +25,8 @@ Learn the ASL (American Sign Language) alphabet using your webcam! This app uses
 3. Ensure good lighting
 4. Hold your hand at arm's length from the camera
 
-## MVP Scope
-Currently supports letters **A, B, C**. More letters can be added by collecting additional training data.
+## Supported Letters
+Supports **24 static ASL letters** (A-Y, excluding J and Z which require motion). Trained on 33,500+ real hand landmark samples with 94% accuracy.
 
 ## Tech Stack
 - MediaPipe Hands for hand landmark detection
