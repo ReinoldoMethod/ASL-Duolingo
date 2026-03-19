@@ -396,12 +396,39 @@ with gr.Blocks(title="ASL Alphabet Teacher") as demo:
                 )
                 learn_progress = gr.Textbox(value=f"Letter 1/{len(LEARN_LETTERS)}",
                                             label="Progress", interactive=False)
-                learn_reset_btn = gr.Button("Reset", variant="secondary")
+                with gr.Row():
+                    learn_skip_btn = gr.Button("Skip →", variant="primary")
+                    learn_reset_btn = gr.Button("Reset", variant="secondary")
 
         learn_webcam.stream(
             fn=process_learn,
             inputs=[learn_webcam, learn_index, learn_correct_time],
             outputs=[learn_webcam, learn_index, learn_correct_time,
+                     learn_status, learn_progress, learn_sign_image],
+        )
+
+        def skip_learn(current_index):
+            """Skip to the next letter."""
+            total = len(LEARN_LETTERS)
+            current_index = int(current_index) + 1
+            if current_index >= total:
+                status = ("<span style='color:green; font-size:1.4em; font-weight:bold;'>"
+                          "Congratulations! You learned the ASL alphabet!</span>")
+                progress = f"Letter {total}/{total}"
+                sign_img = _get_sign_image_path(LEARN_LETTERS[-1])
+            else:
+                target = LEARN_LETTERS[current_index]
+                desc = LETTER_DESCRIPTIONS[target]
+                status = (f"<b>Sign the letter: <span style='font-size:1.6em;'>"
+                          f"{target}</span></b><br>{desc}")
+                progress = f"Letter {current_index + 1}/{total}"
+                sign_img = _get_sign_image_path(target)
+            return current_index, 0.0, status, progress, sign_img
+
+        learn_skip_btn.click(
+            fn=skip_learn,
+            inputs=[learn_index],
+            outputs=[learn_index, learn_correct_time,
                      learn_status, learn_progress, learn_sign_image],
         )
 
