@@ -51,21 +51,28 @@ LEARN_LETTERS = ["A", "B", "C"]
 
 
 def _process_frame(frame: np.ndarray):
-    """Run detection + classification on a single BGR frame.
+    """Run detection + classification on a single frame.
+
+    Gradio sends RGB numpy arrays; MediaPipe also expects RGB, so we
+    pass frames through directly (no BGR conversion needed).
 
     Returns (annotated_frame, letter_or_none, confidence_or_none).
     """
     if frame is None:
         return None, None, None
 
-    landmarks, handedness, annotated = detector.detect(frame)
+    try:
+        landmarks, handedness, annotated = detector.detect(frame)
 
-    if landmarks is None or classifier is None:
-        return annotated, None, None
+        if landmarks is None or classifier is None:
+            return annotated, None, None
 
-    features = normalize_landmarks(landmarks, handedness)
-    letter, confidence = classifier.predict(features)
-    return annotated, letter, confidence
+        features = normalize_landmarks(landmarks, handedness)
+        letter, confidence = classifier.predict(features)
+        return annotated, letter, confidence
+    except Exception as e:
+        print(f"[ERROR] _process_frame: {e}", flush=True)
+        return frame, None, None
 
 
 def _draw_text(frame, text, position, font_scale=1.2, color=(0, 255, 0),

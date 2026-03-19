@@ -19,20 +19,26 @@ class HandDetector:
             min_tracking_confidence=0.5,
         )
 
-    def detect(self, frame: np.ndarray) -> tuple:
-        """Detect hand landmarks in a BGR frame.
+    def detect(self, frame: np.ndarray, is_rgb: bool = True) -> tuple:
+        """Detect hand landmarks in a video frame.
 
         Args:
-            frame: BGR numpy array from OpenCV.
+            frame: numpy array (RGB from Gradio, or BGR from OpenCV).
+            is_rgb: If True, frame is already RGB (Gradio webcam).
+                    If False, frame is BGR (OpenCV) and will be converted.
 
         Returns:
             Tuple of (landmarks, handedness, annotated_frame):
                 - landmarks: np.ndarray of shape (21, 3) or None if no hand detected.
                 - handedness: "Left" or "Right" string, or None.
-                - annotated_frame: Copy of frame with landmarks drawn on it (BGR).
+                - annotated_frame: Copy of frame with landmarks drawn on it.
         """
-        # Convert BGR to RGB for MediaPipe
-        frame_rgb = frame[:, :, ::-1]
+        if is_rgb:
+            frame_rgb = frame
+        else:
+            frame_rgb = frame[:, :, ::-1]
+
+        frame_rgb = np.ascontiguousarray(frame_rgb)
         frame_rgb.flags.writeable = False
         results = self._hands.process(frame_rgb)
 

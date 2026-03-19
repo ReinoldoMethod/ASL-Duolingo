@@ -57,7 +57,7 @@ def main():
             print("ERROR: Failed to read from webcam.")
             break
 
-        landmarks, handedness, annotated = detector.detect(frame)
+        landmarks, handedness, annotated = detector.detect(frame, is_rgb=False)
 
         # -- Draw instructions --
         cv2.putText(
